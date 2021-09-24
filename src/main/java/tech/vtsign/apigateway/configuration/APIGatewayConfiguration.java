@@ -1,24 +1,24 @@
 package tech.vtsign.apigateway.configuration;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.cloud.gateway.route.RouteLocator;
 import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import tech.vtsign.apigateway.filter.MyGatewayFilterFactory;
+import tech.vtsign.apigateway.filter.AuthGatewayFilterFactory;
+import tech.vtsign.apigateway.filter.ServiceGatewayFilterFactory;
 
 @Configuration
+@RequiredArgsConstructor
 public class APIGatewayConfiguration {
-    private final MyGatewayFilterFactory myGatewayFilterFactory;
-
-    public APIGatewayConfiguration(MyGatewayFilterFactory myGatewayFilterFactory) {
-        this.myGatewayFilterFactory = myGatewayFilterFactory;
-    }
+    private final ServiceGatewayFilterFactory serviceGatewayFilterFactory;
+    private final AuthGatewayFilterFactory authGatewayFilterFactory;
 
     @Bean
     public RouteLocator gatewayRoute(RouteLocatorBuilder builder) {
         return builder.routes()
                 .route(r -> r.path("/user/**")
-                        .filters(f -> f.filter(myGatewayFilterFactory.apply(new MyGatewayFilterFactory.Config())))
+                        .filters(f -> f.filter(authGatewayFilterFactory.apply(new AuthGatewayFilterFactory.Config())))
                         .uri("lb://user-service")
                 )
                 .route(r -> r.path("/document/**")

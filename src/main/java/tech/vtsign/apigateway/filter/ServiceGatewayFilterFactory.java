@@ -13,30 +13,22 @@ import tech.vtsign.apigateway.proxy.JwtResponse;
 import tech.vtsign.apigateway.service.WebClientService;
 
 @Component
-public class MyGatewayFilterFactory extends AbstractGatewayFilterFactory<MyGatewayFilterFactory.Config>  {
-    @Autowired
-    private WebClientService webClientService;
+public class ServiceGatewayFilterFactory extends AbstractGatewayFilterFactory<ServiceGatewayFilterFactory.Config> {
 
-    public MyGatewayFilterFactory(){
+    private final WebClientService webClientService;
+
+    public ServiceGatewayFilterFactory(WebClientService webClientService) {
         super(Config.class);
+        this.webClientService = webClientService;
     }
 
     public static class Config {
-        // ...
+
     }
 
-
-    private boolean isAuthorizationValid(String authorizationHeader) {
-        boolean isValid = true;
-
-        // Logic for checking the value
-        return isValid;
-    }
-
-    private Mono<Void> onError(ServerWebExchange exchange, String err, HttpStatus httpStatus)  {
+    private Mono<Void> onError(ServerWebExchange exchange, HttpStatus httpStatus) {
         ServerHttpResponse response = exchange.getResponse();
         response.setStatusCode(httpStatus);
-
         return response.setComplete();
     }
 
@@ -44,29 +36,18 @@ public class MyGatewayFilterFactory extends AbstractGatewayFilterFactory<MyGatew
     public GatewayFilter apply(Config config) {
         return (exchange, chain) -> {
             ServerHttpRequest request = exchange.getRequest();
+            if (!request.getHeaders().containsKey("access_token")) {
+                this.onError(exchange, HttpStatus.BAD_REQUEST);
+            }
 
-
-
-//            if (!request.getHeaders().containsKey("Authorization")) {
-//                return this.onError(exchange, "No Authorization header", HttpStatus.UNAUTHORIZED);
-//            };
-//
-//            String authorizationHeader = request.getHeaders().get("Authorization").get(0);
-//
-//            if (!this.isAuthorizationValid(authorizationHeader)) {
-//                return this.onError(exchange, "Invalid Authorization header", HttpStatus.UNAUTHORIZED);
-//            }
             Mono<JwtResponse> responseMono = webClientService.someRestCall("signin");
-            return responseMono.map(range ->{
+            return responseMono.map(range -> {
                 exchange.getRequest()
                         .mutate()
-                        .headers(h -> h.add("Authorization",range.getJwt()))
+                        .headers(h -> h.add("Authorization", range.getJwttoken()))
                         .build();
                 return exchange;
-            }).flatMap(chain::filter);
-
-
-//
+            }).flatMap(chain.filter(exchange));
         };
     }
 

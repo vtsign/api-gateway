@@ -1,29 +1,14 @@
 package tech.vtsign.apigateway.proxy;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
+@AllArgsConstructor
+@Data
+@NoArgsConstructor
 public class JwtResponse {
-    private String jwt;
 
-    public JwtResponse() {
+    private String jwttoken;
 
-    }
-
-    public JwtResponse(String jwt) {
-        this.jwt = jwt;
-    }
-
-    public String getJwt() {
-        return jwt;
-    }
-
-    public void setJwt(String jwt) {
-        this.jwt = jwt;
-    }
-
-    @Override
-    public String toString() {
-        return "JwtResponse{" +
-                "jwt='" + jwt + '\'' +
-                '}';
-    }
 }
