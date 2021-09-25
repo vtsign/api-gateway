@@ -1,6 +1,5 @@
 package tech.vtsign.apigateway.filter;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
 import org.springframework.http.HttpStatus;
@@ -13,11 +12,11 @@ import tech.vtsign.apigateway.proxy.JwtResponse;
 import tech.vtsign.apigateway.service.WebClientService;
 
 @Component
-public class ServiceGatewayFilterFactory extends AbstractGatewayFilterFactory<ServiceGatewayFilterFactory.Config> {
+public class GatewayFilterFactory extends AbstractGatewayFilterFactory<GatewayFilterFactory.Config> {
 
     private final WebClientService webClientService;
 
-    public ServiceGatewayFilterFactory(WebClientService webClientService) {
+    public GatewayFilterFactory(WebClientService webClientService) {
         super(Config.class);
         this.webClientService = webClientService;
     }
@@ -40,14 +39,14 @@ public class ServiceGatewayFilterFactory extends AbstractGatewayFilterFactory<Se
                 this.onError(exchange, HttpStatus.BAD_REQUEST);
             }
 
-            Mono<JwtResponse> responseMono = webClientService.someRestCall("signin");
+            Mono<JwtResponse> responseMono = webClientService.someRestCall("/auth/signin");
             return responseMono.map(range -> {
                 exchange.getRequest()
                         .mutate()
                         .headers(h -> h.add("Authorization", range.getJwttoken()))
                         .build();
                 return exchange;
-            }).flatMap(chain.filter(exchange));
+            }).flatMap(chain::filter);
         };
     }
 
