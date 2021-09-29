@@ -20,15 +20,16 @@ public class APIGatewayConfiguration {
                         .uri("lb://user-service")
                 )
                 .route(r -> r.path("/document/**")
+                        .filters(f -> f.filter(gatewayFilterFactory.apply(new GatewayFilterFactory.Config())))
                         .uri("lb://document-service")
                 )
                 .route(r -> r.path("/auth/**")
                         .uri("lb://auth-service")
                 )
                 .route(r -> r.path("/notification/**")
+                        .filters(f -> f.filter(gatewayFilterFactory.apply(new GatewayFilterFactory.Config())))
                         .uri("lb://notification-service")
                 )
-
                 .build();
     }
 }

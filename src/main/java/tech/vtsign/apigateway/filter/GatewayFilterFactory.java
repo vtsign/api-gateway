@@ -21,10 +21,6 @@ public class GatewayFilterFactory extends AbstractGatewayFilterFactory<GatewayFi
         this.webClientService = webClientService;
     }
 
-    public static class Config {
-
-    }
-
     private Mono<Void> onError(ServerWebExchange exchange, HttpStatus httpStatus) {
         ServerHttpResponse response = exchange.getResponse();
         response.setStatusCode(httpStatus);
@@ -36,7 +32,7 @@ public class GatewayFilterFactory extends AbstractGatewayFilterFactory<GatewayFi
         return (exchange, chain) -> {
             ServerHttpRequest request = exchange.getRequest();
             if (!request.getHeaders().containsKey("access_token")) {
-                this.onError(exchange, HttpStatus.BAD_REQUEST);
+                return this.onError(exchange, HttpStatus.BAD_REQUEST);
             }
 
             Mono<JwtResponse> responseMono = webClientService.someRestCall("/auth/signin");
@@ -48,6 +44,10 @@ public class GatewayFilterFactory extends AbstractGatewayFilterFactory<GatewayFi
                 return exchange;
             }).flatMap(chain::filter);
         };
+    }
+
+    public static class Config {
+
     }
 
 
