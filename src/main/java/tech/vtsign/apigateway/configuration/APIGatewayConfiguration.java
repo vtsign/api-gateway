@@ -5,12 +5,14 @@ import org.springframework.cloud.gateway.route.RouteLocator;
 import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import tech.vtsign.apigateway.filter.GatewayFilterFactory;
 
 @Configuration
 @RequiredArgsConstructor
 public class APIGatewayConfiguration {
     private final GatewayFilterFactory gatewayFilterFactory;
+    private final Environment env;
 
     @Bean
     public RouteLocator gatewayRoute(RouteLocatorBuilder builder) {
@@ -29,6 +31,10 @@ public class APIGatewayConfiguration {
                 .route(r -> r.path("/notification/**")
                         .filters(f -> f.filter(gatewayFilterFactory.apply(new GatewayFilterFactory.Config())))
                         .uri("lb://notification-service")
+                )
+                .route(r -> r.path("/v3/api-docs/**")
+                        .filters(f -> f.rewritePath("/v3/api-docs/(?<path>.*)", "/${path}/v3/api-docs/"))
+                        .uri(String.format("http://localhost:%s", env.getProperty("server.port")))
                 )
                 .build();
     }
