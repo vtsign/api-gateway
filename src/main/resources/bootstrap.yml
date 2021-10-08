@@ -12,6 +12,9 @@ spring:
       uri: http://vtsign.tech:8888
 server:
   port: 8765
+  error:
+    whitelabel:
+      enabled: false
 springdoc:
   swagger-ui:
     path: /api-docs
