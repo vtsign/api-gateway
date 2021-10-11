@@ -24,9 +24,11 @@ public class WebClientService {
 
     private final WebClient.Builder builder;
 
-    public Mono<JwtResponse> someRestCall(String uri) {
-        return this.builder.build().post().uri("http://auth-service/" + uri)
-                .retrieve().bodyToMono(JwtResponse.class);
+    public Mono<String> someRestCall(String uri, String accessToken) {
+        return this.builder.build().post()
+                .uri("http://auth-service/" + uri)
+                .header("Authorization", "Bearer " + accessToken)
+                .retrieve().bodyToMono(String.class);
     }
 
 }

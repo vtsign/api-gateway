@@ -32,20 +32,22 @@ public class GatewayFilterFactory extends AbstractGatewayFilterFactory<GatewayFi
         return (exchange, chain) -> {
 
             ServerHttpRequest request = exchange.getRequest();
-            if(!request.getPath().value().contains("/v3/api-docs") && !request.getPath().value().contains("/user/activation")) {
+            String path = request.getPath().value();
+            if (!path.contains("/v3/api-docs") && !path.contains("/user/activation")) {
                 if (!request.getHeaders().containsKey("access_token")) {
                     return this.onError(exchange, HttpStatus.BAD_REQUEST);
                 }
 
-                Mono<JwtResponse> responseMono = webClientService.someRestCall("/auth/jwt");
+                String token = request.getHeaders().get("access_token").get(0);
+                Mono<String> responseMono = webClientService.someRestCall("/auth/jwt", token);
                 return responseMono.map(range -> {
                     exchange.getRequest()
                             .mutate()
-                            .headers(h -> h.add("Authorization", range.getJwttoken()))
+                            .headers(h -> h.add("Authorization", "Bearer " + range))
                             .build();
                     return exchange;
                 }).flatMap(chain::filter);
-            }else return chain.filter(exchange);
+            } else return chain.filter(exchange);
         };
     }
 
