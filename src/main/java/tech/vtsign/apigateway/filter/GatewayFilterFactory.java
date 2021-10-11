@@ -8,7 +8,6 @@ import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
-import tech.vtsign.apigateway.proxy.JwtResponse;
 import tech.vtsign.apigateway.service.WebClientService;
 
 @Component
@@ -20,7 +19,6 @@ public class GatewayFilterFactory extends AbstractGatewayFilterFactory<GatewayFi
         super(Config.class);
         this.webClientService = webClientService;
     }
-
     private Mono<Void> onError(ServerWebExchange exchange, HttpStatus httpStatus) {
         ServerHttpResponse response = exchange.getResponse();
         response.setStatusCode(httpStatus);
@@ -50,7 +48,6 @@ public class GatewayFilterFactory extends AbstractGatewayFilterFactory<GatewayFi
             } else return chain.filter(exchange);
         };
     }
-
     public static class Config {
 
     }

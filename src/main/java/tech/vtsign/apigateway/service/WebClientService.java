@@ -4,8 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
-import tech.vtsign.apigateway.proxy.JwtResponse;
-
 @Service
 @RequiredArgsConstructor
 public class WebClientService {
