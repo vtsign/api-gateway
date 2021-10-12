@@ -36,37 +36,23 @@ public class GatewayErrorAttributes extends DefaultErrorAttributes {
 
         HttpStatus errorStatus = determineHttpStatus(error, responseStatusAnnotation);
 
-        // You have to set ,  Otherwise, an error will be reported ,  because  DefaultErrorWebExceptionHandler  Of  renderErrorResponse  Method gets this property ,  Re actualize  DefaultErrorWebExceptionHandler Can also be .
-
         errorAttributes.put("status", errorStatus.value());
 
-        errorAttributes.put("code", errorStatus.value());
 
-        errorAttributes.put("from", "api-gateway");
-
-        errorAttributes.put("timestamps", new Date());
-
-//        errorAttributes.put("requestId", request.exchange().getRequest().getId());
-
-//        errorAttributes.put("error", errorStatus.getReasonPhrase());
-
-//        errorAttributes.put("exception", error.getClass().getName());
+        errorAttributes.put("timestamp", new Date());
 
         return errorAttributes;
 
     }
 
     // from DefaultErrorWebExceptionHandler Copied from
-
     private HttpStatus determineHttpStatus(Throwable error, MergedAnnotation<ResponseStatus> responseStatusAnnotation) {
 
         if (error instanceof ResponseStatusException) {
 
             return ((ResponseStatusException) error).getStatus();
-
         }
-
-        return responseStatusAnnotation.getValue("code", HttpStatus.class).orElse(HttpStatus.INTERNAL_SERVER_ERROR);
+        return responseStatusAnnotation.getValue("status", HttpStatus.class).orElse(HttpStatus.INTERNAL_SERVER_ERROR);
 
     }
 

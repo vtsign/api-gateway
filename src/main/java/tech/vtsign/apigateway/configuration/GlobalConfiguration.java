@@ -8,9 +8,6 @@ import org.springframework.web.cors.reactive.CorsWebFilter;
 import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import java.util.Arrays;
-import java.util.Collections;
-
 @Configuration
 public class GlobalConfiguration {
     @Bean

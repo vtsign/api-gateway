@@ -1,32 +1,35 @@
 package tech.vtsign.apigateway.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
+import tech.vtsign.apigateway.exception.ExceptionResponse;
+import tech.vtsign.apigateway.exception.RequestException;
+
 @Service
 @RequiredArgsConstructor
 public class WebClientService {
 
-//    private final WebClient webClient;
-//
-//
-//    public WebClientService(WebClient.Builder webClientBuilder) {
-//        this.webClient = webClientBuilder.baseUrl("http://localhost:8100").build();
-//    }
-//
-//    public Mono<JwtResponse> someRestCall(String name) {
-//        return this.webClient.post().uri("/"+name)
-//                .retrieve().bodyToMono(JwtResponse.class);
-//    }
-
     private final WebClient.Builder builder;
 
-    public Mono<String> someRestCall(String uri, String accessToken) {
+    public Mono<String> getJWTToken(String uri, String bearerToken) {
         return this.builder.build().post()
                 .uri("http://auth-service/" + uri)
-                .header("Authorization", "Bearer " + accessToken)
-                .retrieve().bodyToMono(String.class);
+                .header("Authorization", bearerToken)
+                .retrieve()
+                .onStatus(HttpStatus::is4xxClientError,
+                        error -> {
+                            Mono<ExceptionResponse> exceptionResponseMono = error.bodyToMono(ExceptionResponse.class);
+                            return exceptionResponseMono
+                                    .flatMap(exceptionResponse ->
+                                            Mono.error(new RequestException(HttpStatus.valueOf(exceptionResponse.getStatus()),
+                                                    exceptionResponse.getMessage())));
+                        })
+                .onStatus(HttpStatus::is5xxServerError,
+                        error -> Mono.error(new RuntimeException("Service unavailable")))
+                .bodyToMono(String.class);
     }
 
 }

@@ -8,6 +8,7 @@ import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
+import tech.vtsign.apigateway.exception.RequestException;
 import tech.vtsign.apigateway.service.WebClientService;
 
 @Component
@@ -28,29 +29,32 @@ public class GatewayFilterFactory extends AbstractGatewayFilterFactory<GatewayFi
     @Override
     public GatewayFilter apply(Config config) {
         return (exchange, chain) -> {
-
             ServerHttpRequest request = exchange.getRequest();
             String path = request.getPath().value();
+
             if (!path.contains("/v3/api-docs") && !path.contains("/user/activation")) {
-                if (!request.getHeaders().containsKey("access_token")) {
-                    return this.onError(exchange, HttpStatus.BAD_REQUEST);
+                String bearerToken = request.getHeaders().getFirst("Authorization");
+                if(bearerToken == null) {
+                    return Mono.error(new RequestException(HttpStatus.BAD_REQUEST, "Missing access token"));
                 }
 
-                String token = request.getHeaders().get("access_token").get(0);
-                Mono<String> responseMono = webClientService.someRestCall("/auth/jwt", token);
-                return responseMono.map(range -> {
+                Mono<?> tokenMono = webClientService.getJWTToken("/auth/jwt", bearerToken);
+
+                return tokenMono.map(token -> {
                     exchange.getRequest()
                             .mutate()
-                            .headers(h -> h.add("Authorization", "Bearer " + range))
+                            .headers(h -> h.add("Authorization", "Bearer " + token))
                             .build();
                     return exchange;
                 }).flatMap(chain::filter);
             } else return chain.filter(exchange);
         };
     }
+
+
+
     public static class Config {
 
     }
-
 
 }
