@@ -39,11 +39,12 @@ public class GatewayFilterFactory extends AbstractGatewayFilterFactory<GatewayFi
                 }
 
                 Mono<?> tokenMono = webClientService.getJWTToken("/auth/jwt", bearerToken);
-
                 return tokenMono.map(token -> {
+                    System.out.println(token);
                     exchange.getRequest()
                             .mutate()
-                            .headers(h -> h.add("Authorization", "Bearer " + token))
+                            .headers(
+                                    h ->  h.set("Authorization", "Bearer " + token))
                             .build();
                     return exchange;
                 }).flatMap(chain::filter);
