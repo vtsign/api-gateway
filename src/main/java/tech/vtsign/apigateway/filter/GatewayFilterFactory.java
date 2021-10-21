@@ -11,6 +11,8 @@ import reactor.core.publisher.Mono;
 import tech.vtsign.apigateway.exception.RequestException;
 import tech.vtsign.apigateway.service.WebClientService;
 
+import java.util.List;
+
 @Component
 public class GatewayFilterFactory extends AbstractGatewayFilterFactory<GatewayFilterFactory.Config> {
 
@@ -31,8 +33,9 @@ public class GatewayFilterFactory extends AbstractGatewayFilterFactory<GatewayFi
         return (exchange, chain) -> {
             ServerHttpRequest request = exchange.getRequest();
             String path = request.getPath().value();
-
-            if (!path.contains("/v3/api-docs") && !path.contains("/user/activation")) {
+            List<String> acceptURL = List.of("/v3/api-docs", "/user/activation", "/document/apt/");
+            boolean moveOn = isAcceptURL(acceptURL, path);
+            if (!moveOn) {
                 String bearerToken = request.getHeaders().getFirst("Authorization");
                 if(bearerToken == null) {
                     return Mono.error(new RequestException(HttpStatus.BAD_REQUEST, "Missing access token"));
@@ -40,7 +43,6 @@ public class GatewayFilterFactory extends AbstractGatewayFilterFactory<GatewayFi
 
                 Mono<?> tokenMono = webClientService.getJWTToken("/auth/jwt", bearerToken);
                 return tokenMono.map(token -> {
-                    System.out.println(token);
                     exchange.getRequest()
                             .mutate()
                             .headers(
@@ -52,6 +54,16 @@ public class GatewayFilterFactory extends AbstractGatewayFilterFactory<GatewayFi
         };
     }
 
+    private boolean isAcceptURL(List<String> acceptURL, String path) {
+        boolean flag = false;
+        for(String url : acceptURL) {
+            if(path.contains(url)){
+                flag = true;
+                break;
+            }
+        }
+        return flag;
+    }
 
 
     public static class Config {
