@@ -34,7 +34,7 @@ public class GatewayFilterFactory extends AbstractGatewayFilterFactory<GatewayFi
         return (exchange, chain) -> {
             ServerHttpRequest request = exchange.getRequest();
             String path = request.getPath().value();
-            List<String> acceptURL = List.of("/v3/api-docs", "/user/activation", "/document/apt/");
+            List<String> acceptURL = List.of("/v3/api-docs", "/user/apt/", "/document/apt/");
             boolean moveOn = isAcceptURL(acceptURL, path);
             if (!moveOn) {
                 String bearerToken = request.getHeaders().getFirst("Authorization");
