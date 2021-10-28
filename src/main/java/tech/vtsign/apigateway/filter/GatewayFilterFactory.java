@@ -22,6 +22,7 @@ public class GatewayFilterFactory extends AbstractGatewayFilterFactory<GatewayFi
         super(Config.class);
         this.webClientService = webClientService;
     }
+
     private Mono<Void> onError(ServerWebExchange exchange, HttpStatus httpStatus) {
         ServerHttpResponse response = exchange.getResponse();
         response.setStatusCode(httpStatus);
@@ -37,7 +38,7 @@ public class GatewayFilterFactory extends AbstractGatewayFilterFactory<GatewayFi
             boolean moveOn = isAcceptURL(acceptURL, path);
             if (!moveOn) {
                 String bearerToken = request.getHeaders().getFirst("Authorization");
-                if(bearerToken == null) {
+                if (bearerToken == null) {
                     return Mono.error(new RequestException(HttpStatus.BAD_REQUEST, "Missing access token"));
                 }
 
@@ -46,7 +47,7 @@ public class GatewayFilterFactory extends AbstractGatewayFilterFactory<GatewayFi
                     exchange.getRequest()
                             .mutate()
                             .headers(
-                                    h ->  h.set("Authorization", "Bearer " + token))
+                                    h -> h.set("Authorization", "Bearer " + token))
                             .build();
                     return exchange;
                 }).flatMap(chain::filter);
@@ -56,8 +57,8 @@ public class GatewayFilterFactory extends AbstractGatewayFilterFactory<GatewayFi
 
     private boolean isAcceptURL(List<String> acceptURL, String path) {
         boolean flag = false;
-        for(String url : acceptURL) {
-            if(path.contains(url)){
+        for (String url : acceptURL) {
+            if (path.contains(url)) {
                 flag = true;
                 break;
             }
