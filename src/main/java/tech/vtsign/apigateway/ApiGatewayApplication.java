@@ -33,7 +33,7 @@ public class ApiGatewayApplication {
         List<GroupedOpenApi> groups = new ArrayList<>();
         List<RouteDefinition> definitions = locator.getRouteDefinitions().collectList().block();
         for (RouteDefinition definition : definitions) {
-            System.out.println("id: " + definition.getId()+ "  "+definition.getUri().toString());
+            System.out.println("id: " + definition.getId() + "  " + definition.getUri().toString());
         }
         definitions.stream().filter(routeDefinition -> routeDefinition.getId().matches(".*-SERVICE")).forEach(routeDefinition -> {
             String[] arr = routeDefinition.getId().split("[_-]");
