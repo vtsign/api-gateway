@@ -1,5 +1,4 @@
 spring:
-
   application:
     name: api-gateway
   cloud:
@@ -7,15 +6,5 @@ spring:
       discovery:
         locator:
           enabled: true
-
     config:
-      uri: http://vtsign.tech:8888
-server:
-  port: 8765
-  error:
-    whitelabel:
-      enabled: false
-springdoc:
-  swagger-ui:
-    path: /api-docs
-  version: '1.0'
+      uri: ${GATEWAY_URI:http://localhost:8888}
