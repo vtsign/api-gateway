@@ -27,6 +27,9 @@ public class ApiGatewayApplication {
         SpringApplication.run(ApiGatewayApplication.class, args);
     }
 
+    @Value("${tech.vtsign.hostname}")
+    private String hostname;
+
     @Bean
     @Lazy(false)
     public List<GroupedOpenApi> apis(SwaggerUiConfigParameters swaggerUiConfigParameters, RouteDefinitionLocator locator) {
@@ -49,7 +52,7 @@ public class ApiGatewayApplication {
         return new OpenAPI()
                 .components(new Components())
                 .info(new io.swagger.v3.oas.models.info.Info().title("API gateway").version(appVersion)
-                        .license(new License().name("Apache 2.0").url("https://vtsign.tech")));
+                        .license(new License().name("Apache 2.0").url(hostname)));
     }
 
 }

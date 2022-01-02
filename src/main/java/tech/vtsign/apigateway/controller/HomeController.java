@@ -11,14 +11,14 @@ import java.util.Map;
 public class HomeController {
     @Value("${tech.vtsign.api-url}")
     private String apiUrl;
-    @Value("${springdoc.swagger-ui.path}")
-    private String apiDocsPath;
+    @Value("${tech.vtsign.api-docs}")
+    private String apiDocs;
 
     @GetMapping("/")
     public Map<String, String> home() {
         HashMap<String, String> map = new HashMap<>();
         map.put("base_url", apiUrl);
-        map.put("documentation", apiUrl + apiDocsPath);
+        map.put("documentation", apiDocs);
         return map;
     }
 }
